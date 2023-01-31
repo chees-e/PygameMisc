@@ -42,12 +42,8 @@ def drawBorder(screen):
         [width_offset-1, G.height - height_offset-1],
     ]
 
-    print(corners)
-
     for i in range(-1, 3):
         pg.draw.line(screen, G.border_colour, corners[i], corners[i + 1], G.border_thickness)
-
-    pg.display.flip()
 
 
 class Food:
@@ -60,7 +56,6 @@ class Food:
 
     def draw(self):
         pg.draw.circle(self.screen, G.food_colour, (self.x, self.y), G.food_width // 2)
-        pg.display.flip()
 
     def clear(self, screen):
         screen.fill(G.bg_colour)
@@ -140,8 +135,6 @@ class Snake:
             newy = self.y
 
         if self.direction == "R":
-            print(self.x, self.Llimit)
-
             if self.x + G.spacing > self.Llimit:
                 newx = self.Rlimit
             else:
@@ -189,18 +182,21 @@ class Snake:
 
         self.draw()
 
-
     def l(self):
-        pass
+        if not self.direction == "R":
+            self.direction = "L"
 
     def r(self):
-        pass
+        if not self.direction == "L":
+            self.direction = "R"
 
     def u(self):
-        pass
+        if not self.direction == "D":
+            self.direction = "U"
 
     def d(self):
-        pass
+        if not self.direction == "U":
+            self.direction = "D"
 
 
 class Game:
@@ -210,12 +206,6 @@ class Game:
 
     def exit_game(self):
         print("GG")
-
-    def check_end(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                return True
-        return False
 
     def run(self):
         clock = pg.time.Clock()
@@ -232,13 +222,26 @@ class Game:
         s = Snake(init_x, init_y, self.screen)
 
         while True:
-            if self.check_end():
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.exit_game()
+                    return
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_RIGHT:
+                        s.r()
+                    elif event.key == pg.K_LEFT:
+                        s.l()
+                    elif event.key == pg.K_UP:
+                        s.u()
+                    elif event.key == pg.K_DOWN:
+                        s.d()
+            s.move()
+
+            if not s.alive:
                 self.exit_game()
                 return
 
-            s.move()
-
-            time.sleep(1)
+            time.sleep(0.1)
 
             clock.tick(G.tick_rate)
 
@@ -246,10 +249,11 @@ class Game:
 def main():
     pg.init()
 
-    pg.display.set_caption("snek")
+    pg.display.set_caption("lore accurate Python 3")
     screen = pg.display.set_mode(G.size)
     screen.fill(G.bg_colour)
     drawBorder(screen)
+    pg.display.flip()
 
     game = Game(screen)
     game.run()
