@@ -93,6 +93,7 @@ class Snake:
         self.screen = screen
         self.font = pg.font.SysFont(G.font_path, G.font_size)
 
+        self.sound = pg.mixer.Sound("./eat.wav")
 
         self.alive = True
         self.length = 1
@@ -126,7 +127,7 @@ class Snake:
         self.group.draw(self.screen)
         score = self.font.render(f"Score: {self.length}", True, G.text_colour)
 
-        self.screen.blit(score, (self.LLimit-G.snake_width//2, self.Ulimit - 1.5 * (G.snake_width + G.border_thickness)))
+        self.screen.blit(score, (self.LLimit-G.spacing//2, self.Ulimit - 1.5 * (G.spacing + G.border_thickness)))
 
         pg.display.flip()
 
@@ -175,6 +176,7 @@ class Snake:
 
         if newx == self.food.x and newy == self.food.y:
             print("Food detected, new length:", self.length + 1)
+            pg.mixer.Sound.play(self.sound)
             self.body.append(Body(newx, newy))
             self.group.add(self.body[-1])
             self.length += 1
