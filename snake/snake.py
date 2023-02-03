@@ -5,31 +5,36 @@ import pygame as pg
 import pygame.sprite
 import random as r
 
+import const as G
 
 # Global variables
-class G:
-    speed = [200, 100, 50]
-    speed_idx = 1
-
-    spacing = 24
-    snake_width = 22
-    food_width = 22
-
-    border_ratio = 0.8
-    border_thickness = 2
-
-    gridx = 20
-    gridy = 20
-
-    size = width, height = round(gridx * spacing / border_ratio), round(gridy * spacing / border_ratio)
-
-    snake_colour = "white"
-    food_colour = "gold"
-    bg_colour = "black"
-    border_colour = "white"
-
-    tick_rate = 60
-
+# class G:
+#     speed = [200, 100, 50]
+#     speed_idx = 1
+#
+#     spacing = 24
+#     snake_width = 22
+#     food_width = 22
+#
+#     border_ratio = 0.8
+#     border_thickness = 2
+#
+#     gridx = 20
+#     gridy = 20
+#
+#     size = width, height = round(gridx * spacing / border_ratio), round(gridy * spacing / border_ratio)
+#
+#     snake_colour = "white"
+#     food_colour = "gold"
+#     bg_colour = "black"
+#     border_colour = "white"
+#     text_colour = "white"
+#
+#     font_size = 24
+#     font_path = None
+#
+#     tick_rate = 60
+#
 
 def drawBorder(screen):
     width_offset = round((1 - G.border_ratio) * G.width / 2 - G.border_thickness - (G.spacing - G.snake_width)/2)
@@ -86,6 +91,8 @@ class Snake:
         self.x = x
         self.y = y
         self.screen = screen
+        self.font = pg.font.SysFont(G.font_path, G.font_size)
+
 
         self.alive = True
         self.length = 1
@@ -99,14 +106,15 @@ class Snake:
         width_offset = round((1 - G.border_ratio) * G.width / 2 + G.spacing / 2)
         height_offset = round((1 - G.border_ratio) * G.height / 2 + G.spacing / 2)
 
-        self.Rlimit = width_offset
+        # TODO: right and left limits are swapped
+        self.LLimit = width_offset
         self.Ulimit = height_offset
-        self.Llimit = self.Rlimit + (G.gridx-1) * G.spacing
+        self.RLimit = self.LLimit + (G.gridx-1) * G.spacing
         self.Dlimit = self.Ulimit + (G.gridy-1) * G.spacing
 
         # todo: Fix limits
 
-        rx = r.randrange(self.Rlimit, self.Llimit, G.spacing)
+        rx = r.randrange(self.LLimit, self.RLimit, G.spacing)
         ry = r.randrange(self.Ulimit, self.Dlimit, G.spacing)
         self.food = Food(rx, ry, screen)
 
@@ -116,6 +124,10 @@ class Snake:
         self.clear()
         self.food.draw()
         self.group.draw(self.screen)
+        score = self.font.render(f"Score: {self.length}", True, G.text_colour)
+
+        self.screen.blit(score, (self.LLimit-G.snake_width//2, self.Ulimit - 1.5 * (G.snake_width + G.border_thickness)))
+
         pg.display.flip()
 
     def clear(self):
@@ -128,15 +140,15 @@ class Snake:
         prevy = self.y
 
         if self.direction == "L":
-            if self.x - G.spacing < self.Rlimit:
-                newx = self.Llimit
+            if self.x - G.spacing < self.LLimit:
+                newx = self.RLimit
             else:
                 newx = self.x - G.spacing
             newy = self.y
 
         if self.direction == "R":
-            if self.x + G.spacing > self.Llimit:
-                newx = self.Rlimit
+            if self.x + G.spacing > self.RLimit:
+                newx = self.LLimit
             else:
                 newx = self.x + G.spacing
             newy = self.y
@@ -162,10 +174,11 @@ class Snake:
                 return
 
         if newx == self.food.x and newy == self.food.y:
+            print("Food detected, new length:", self.length + 1)
             self.body.append(Body(newx, newy))
             self.group.add(self.body[-1])
             self.length += 1
-            rx = r.randrange(self.Rlimit, self.Llimit, G.spacing)
+            rx = r.randrange(self.LLimit, self.RLimit, G.spacing)
             ry = r.randrange(self.Ulimit, self.Dlimit, G.spacing)
             self.food = Food(rx, ry, self.screen)
 
@@ -173,12 +186,12 @@ class Snake:
         self.body[-1].y = newy
         self.body[-1].update()
 
-        print(self.body)
-
         last = self.body.pop(-1)
         self.body.insert(0, last)
         self.x = newx
         self.y = newy
+
+        print(f"x,y: {newx}, {newy}")
 
         self.draw()
 
@@ -238,6 +251,7 @@ class Game:
             s.move()
 
             if not s.alive:
+                print("Score:",s.length)
                 self.exit_game()
                 return
 
