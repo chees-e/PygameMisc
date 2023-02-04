@@ -1,8 +1,3 @@
-import pygame
-
-speed = [200, 100, 50]
-speed_idx = 1
-
 spacing = 24
 snake_width = 22
 food_width = 20
@@ -24,4 +19,4 @@ text_colour = "white"
 font_size = 24
 font_path = None
 
-tick_rate = 60
+tick_rate = 10

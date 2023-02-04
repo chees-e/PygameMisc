@@ -9,9 +9,6 @@ import const as G
 
 # Global variables
 # class G:
-#     speed = [200, 100, 50]
-#     speed_idx = 1
-#
 #     spacing = 24
 #     snake_width = 22
 #     food_width = 22
@@ -129,8 +126,6 @@ class Snake:
 
         self.screen.blit(score, (self.LLimit-G.spacing//2, self.Ulimit - 1.5 * (G.spacing + G.border_thickness)))
 
-        pg.display.flip()
-
     def clear(self):
         self.food.clear(self.screen)
         for b in self.body:
@@ -222,6 +217,19 @@ class Game:
     def exit_game(self):
         print("GG")
 
+    def game_over(self, score):
+        msgfont = pg.font.SysFont(G.font_path, G.font_size)
+        msg = msgfont.render(f"Game Over, score: {score}", True, G.text_colour)
+
+        self.screen.blit(msg, (G.width//2-msg.get_width()//2, G.height//2))
+        pg.display.flip()
+
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.exit_game()
+                    return
+
     def run(self):
         clock = pg.time.Clock()
 
@@ -251,13 +259,12 @@ class Game:
                     elif event.key == pg.K_DOWN:
                         s.d()
             s.move()
+            pg.display.flip()
 
             if not s.alive:
                 print("Score:",s.length)
-                self.exit_game()
+                self.game_over(s.length)
                 return
-
-            time.sleep(0.1)
 
             clock.tick(G.tick_rate)
 
