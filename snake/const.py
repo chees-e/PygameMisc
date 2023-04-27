@@ -11,6 +11,7 @@ gridy = 20
 size = width, height = round(gridx * spacing / border_ratio), round(gridy * spacing / border_ratio)
 
 snake_colour = "white"
+colours = ["red", "orange", "yellow", "green", "blue", "purple"]
 food_colour = "gold"
 bg_colour = "black"
 border_colour = "white"
@@ -20,3 +21,4 @@ font_size = 24
 font_path = None
 
 tick_rate = 10
+

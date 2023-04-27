@@ -9,6 +9,7 @@ import const as G
 
 # Global variables
 # class G:
+
 #     spacing = 24
 #     snake_width = 22
 #     food_width = 22
@@ -65,10 +66,10 @@ class Food:
 
 
 class Body(pg.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, color=G.snake_colour):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([G.snake_width, G.snake_width])
-        self.image.fill(G.snake_colour)
+        self.image.fill(color)
         self.x = x
         self.y = y
         self.rect = self.image.get_rect()
@@ -219,7 +220,7 @@ class Game:
 
     def game_over(self, score):
         msgfont = pg.font.SysFont(G.font_path, G.font_size)
-        msg = msgfont.render(f"Game Over, score: {score}", True, G.text_colour)
+        msg = msgfont.render(f"Game Over, score: {score}, press space to restart", True, G.text_colour)
 
         self.screen.blit(msg, (G.width//2-msg.get_width()//2, G.height//2))
         pg.display.flip()
@@ -228,7 +229,11 @@ class Game:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.exit_game()
-                    return
+                    return 0
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        self.run()
+                        return 1
 
     def run(self):
         clock = pg.time.Clock()
@@ -263,8 +268,12 @@ class Game:
 
             if not s.alive:
                 print("Score:",s.length)
-                self.game_over(s.length)
-                return
+                if over := self.game_over(s.length) <= 0:
+                    return
+                elif over == 1:
+                    init_x = round((1 - G.border_ratio) * G.width / 2 + (G.gridx // 2) * G.spacing + G.spacing / 2)
+                    init_y = round((1 - G.border_ratio) * G.height / 2 + (G.gridy // 2) * G.spacing + G.spacing / 2)
+                    s = Snake(init_x, init_y, self.screen)
 
             clock.tick(G.tick_rate)
 
