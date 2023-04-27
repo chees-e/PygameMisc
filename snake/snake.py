@@ -232,7 +232,6 @@ class Game:
                     return 0
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
-                        self.run()
                         return 1
 
     def run(self):
@@ -268,12 +267,14 @@ class Game:
 
             if not s.alive:
                 print("Score:",s.length)
-                if over := self.game_over(s.length) <= 0:
+                if (over := self.game_over(s.length)) <= 0:
+                    print("Over", over)
                     return
                 elif over == 1:
                     init_x = round((1 - G.border_ratio) * G.width / 2 + (G.gridx // 2) * G.spacing + G.spacing / 2)
                     init_y = round((1 - G.border_ratio) * G.height / 2 + (G.gridy // 2) * G.spacing + G.spacing / 2)
                     s = Snake(init_x, init_y, self.screen)
+                    print("restarted")
 
             clock.tick(G.tick_rate)
 
